@@ -1357,7 +1357,8 @@ def case_add_message_ajax(case_id):
         ajax_data = json.loads(ajax_str)['data']
 
         Data = {
-            "tag_id"              : ajax_data['doc_id'] ,
+            "tag_id"              : ajax_data['tag_id'] ,
+            "record_id"           : ajax_data['record_id'] ,
             "message"             : ajax_data['message']
         }
 
@@ -1366,11 +1367,11 @@ def case_add_message_ajax(case_id):
         # add new record tag
         record = {
             "Data"          :Data, 
-            "data_source"   :None, 
-            "data_type"     :'tag', 
+            "data_source"   :None
         }
 
         update_field = db_es.update_field( {'doc': {'Data': {'message' : record['Data']['message'] }}} , record['Data']['tag_id'] , case_id)
+        update_field = db_es.update_field( {'doc': {'message' : record['Data']['message'] }} , record['Data']['record_id'] , case_id)
 
         if update_field[0] == False:
                         logger.logger(level=logger.ERROR , type="case", message="Case["+case_id+"]: Failed adding tag_id to artifact record", reason=update_field[1])
@@ -1412,7 +1413,7 @@ def case_timeline_build_ajax(case_id):
             dest_filename       = src_filename.rstrip(".xlsx") + "_v"+str(new_version)+".xlsx"
             src_filename        = src_filename.rstrip(".xlsx") + "_v"+str(latest_version)+".xlsx" if latest_version > 0 else src_filename
             dest_timeline       = os.path.join( dest_timeline_folder , dest_filename )
-            src_timeline        = os.path.join(dest_timeline_folder , src_filename) if latest_version > 0 else os.path.join( app.config['Timeline_Templates'] , src_filename)
+            src_timeline        = os.path.join( app.config['Timeline_Templates'] , "timeline.xlsx")
             t                   = buildTimeline.BuildTimeline(views_folder=views_folder , fname= src_timeline)
             export_date         = str(datetime.now())
 
@@ -1454,10 +1455,10 @@ def case_timeline_build_ajax(case_id):
                         "default_field": "catch_all"
                     }
                 },
-                "size": 2000 
+                "size": 2000
             })
             if len(requests):
-                res = db_es.multiqueries(case_id, requests)
+                res = db_es.multiqueries(case_id, requests) 
             else:
                 res = [True, []] # if there is no rules
 
@@ -1503,6 +1504,7 @@ def case_timeline_build_ajax(case_id):
                         data['_source']['_id'] = data['_id'] 
                         data['_source']['_Export_Version']  = "V_" + str(new_version)
                         data['_source']['_Export_Date']     = export_date
+
                         
                         fields_data = t.merge_data_and_fields(fields = default_rule['fields'].copy(), data= data['_source'])
                         t.add_data_to_sheet(sheet_timeline, fields_data) 
