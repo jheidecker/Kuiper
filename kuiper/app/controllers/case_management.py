@@ -1346,7 +1346,39 @@ def case_add_tag_ajax(case_id):
                 return json.dumps({"result" : 'successful' , 'tag_id' : up[3][0] , 'tag_type' : record['Data']['tag_type']})
             return json.dumps({"result" : 'successful' , 'tag_id' : up[3][0] , 'tag_type' : record['Data']['tag_type']})
 
- 
+
+# ================================ add message ajax
+# add message to a specifc record
+@app.route('/case/<case_id>/add_message_ajax', methods=["POST"])
+def case_add_message_ajax(case_id):
+    if request.method == "POST":
+        ajax_str =  urllib.unquote(request.data).decode('utf8')
+        record_id = None
+        ajax_data = json.loads(ajax_str)['data']
+
+        Data = {
+            "tag_id"              : ajax_data['doc_id'] ,
+            "message"             : ajax_data['message']
+        }
+
+        logger.logger(level=logger.DEBUG , type="case", message="Case["+case_id+"]: Add message", reason=json.dumps(Data))
+
+        # add new record tag
+        record = {
+            "Data"          :Data, 
+            "data_source"   :None, 
+            "data_type"     :'tag', 
+        }
+
+        update_field = db_es.update_field( {'doc': {'Data': {'message' : record['Data']['message'] }}} , record['Data']['tag_id'] , case_id)
+
+        if update_field[0] == False:
+                        logger.logger(level=logger.ERROR , type="case", message="Case["+case_id+"]: Failed adding tag_id to artifact record", reason=update_field[1])
+                        return json.dumps({'result' : 'failed' , 'data': 'Failed adding message to record: ' + update_field[1]})
+                    
+        return json.dumps({"result" : 'successful'})
+
+
 
 # ================================ generate timeline
 # get all tags for the case via ajax

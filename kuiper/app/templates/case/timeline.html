@@ -7,41 +7,22 @@
     <div class="row">
 
         <div class="col-md-12">
-            <div class="box collapsed-box">
+            <div class="box collapsed-box collapsed in">
                 <div class="box-header">
-                    <h3 class="box-title"><i class="fa fa-clock-o"></i> Timeline tags</h3>
+                    <h3 class="box-title pull-left"><i class="fa fa-clock-o"></i> Timeline</h3>
 
                     <!-- =============== start Buttons =============== -->
-                      <div class="btn-group box-tools pull-right">
+                      <div class="btn-group pull-right">
                         <button type="button" class="btn btn-sm btn-primary" id="show_as_table" ><i class="fa fa-table" title="Show tags as table"></i></button>
                         <button type="button" class="btn btn-sm btn-default" id="show_as_timeline" ><i class="fa fa-reorder" title="show tags as timeline"></i></button>
                         <a type="button" class="btn btn-sm btn-default" id="export_csv" href="{{ url_for('case_timeline_build_ajax' , case_id=case_id) }}"><i class="fa fa-download" title="Export timeline as .CSV"></i></a>
-                        <button type="button" class="btn btn-sm btn-default" data-widget="collapse"><i class="fa fa-plus" title="Create a time line message"></i></button>
                       </div>
                     <!-- =============== end Buttons =============== -->
                     <br />
                     <!-- /.box-tools -->
                 </div>
                 <!-- /.box-header -->
-                <div class="box-body no-padding" style="display: none;">
 
-                    <div class="form-group">
-
-                        <div class="input-group">
-                            <div class="input-group-addon">
-                                <i class="fa fa-clock-o"></i>
-                            </div>
-                            <input type="text" class='form-control pull-right' id="tag_add_form_datetime" placeholder="yyyy-mm-dd HH:ii:ss" autocomplete="off" />
-                        </div>
-                        <br />
-                        <textarea class="form-control" rows="2" placeholder="Message ..." id="tag_add_form_message"></textarea>
-                        <br />
-                        <!-- /.input group -->
-                        <button id="tag_add_form_submit" type="button" class="btn btn-success">
-                            <li class="fa fa-plus-circle"></li> Submit</button>
-                    </div>
-
-                </div>
                 <!-- /.box-body -->
             </div>
             <!-- /.box -->
@@ -74,7 +55,23 @@
   </div><!-- modal-dialog -->
 </div><!-- modal -->
 
+<!-- Modal record details-->
+<div class="modal right fade" id="message_details" tabindex="-1" role="dialog" aria-labelledby="edit_message_modal">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
 
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="edit_message_modal">Edit Artifact Message</h4>
+      </div>
+
+      <div class="modal-body">
+        <div id="edit_message">  </div>
+      </div>
+
+    </div><!-- modal-content -->
+  </div><!-- modal-dialog -->
+</div><!-- modal -->
 
 
 
@@ -273,77 +270,30 @@ function del_tag(tag_id , record_id = null){
 
 
 // add tag with message
-function add_msg_tag(tag_msg , timestamp ){
+function add_msg_tag(tag_msg , record ){
   $.ajax({
     type : 'POST',
-    url : "/case/{{case_details['casename']}}/add_tag_ajax",
+    url : "/case/{{case_details['casename']}}/add_message_ajax",
     contentType: 'application/json;charset=UTF-8',
-    data : JSON.stringify({'data': {"message":tag_msg , 'time': timestamp } }),
+    data : JSON.stringify({'data': {"message": tag_msg , 'doc_id': record } }),
     async: false,
     timeout: 30000,
     success: function(result) {
       var result = JSON.parse(result);
       if(result['result'] == "failed")
-          toast_msg("Failed to add tag"  , type = 'error' , header = 'Error')
+          toast_msg("Failed to add message"  , type = 'error' , header = 'Error')
           
       else{
-          
-          var tag_id = result['id']
 
-          var tag = {
-            "_id" : tag_id,
-            "_source" : {
-              "Data" : {
-                "message" : tag_msg,
-                "@timestamp" : timestamp,
-              }
-            } 
-          }
-
-          var label = timestamp.substring(0,10);
-          if(label in listOfDates) {
-              var element = get_tag_message(tag , label , false)  // if there is a label before, dont create new one
-              listOfDates[label]++; 
-          }
-          else {
-              var element = get_tag_message(tag , label , true) // if there is no label, create one
-              listOfDates[label] = 1;
-          }
-              
-
-          var time = timestamp.replace('T' , ' ')
-          var times = []
-
-          var boxs = $('.timeline').children('[date-time]').each(function () {
-              times.push($(this).attr('date-time'));
-          });
-
-
-          if(times.length == 0 )
-              $('.timeline').prepend(element);
-
-          else if( time < times[0]) // add at first
-              if( time.substring(0,10) == times[0].substring(0,10))
-                  $(element).insertBefore($('.timeline').children('[date-time]').first());
-              else
-                  $('.timeline').prepend(element);
-            
-          
-          else if(time > times[times.length-1])  // add at last 
-            $(element).insertAfter($('.timeline').children('[date-time]').last());
-
-          else // add between two times
-            for(var i = 0 ; i <times.length-1 ; i++)
-              if( time > times[i] && time < times[i+1]){
-                if( time.substring(0,10) == times[i+1].substring(0,10))
-                    $('.timeline').children('[date-time]').slice(i+1 , i+2).each(function(){ $(element).insertBefore( $(this) ); });
-                else
-                    $('.timeline').children('[date-time]').slice(i , i+1).each(function(){ $(element).insertAfter( $(this) ); });
-                break;
-                
-              }  
-          toast_msg("The tag has been added"  , type = 'info' , header = 'Information')
-
+        if (view_type == 'table'){
+          $('#' + record + ' > td:nth-child(3)').text(tag_msg);
+        }
+        else if (view_type == 'timeline'){
+          $('#' + record + ' > div > h3').text(tag_msg);
+        }        
+      
+        toast_msg("The message has been added"  , type = 'info' , header = 'Information')
+        
       }
     },  
     error: function(error){
@@ -403,11 +353,13 @@ function get_tag_message(tag , label , with_label = false){
     
     var isRecord_tag          = tag['_source']['Data'].hasOwnProperty("record_details");
     var record_details_button = ""
+    var edit_message_button   = ""
     var important_fields      = ""
 
 
     if( isRecord_tag ){
         record_details_button = '<a data="'+tag['_id']+'"  data-target="#tag_details" class="record_details_button btn btn-primary btn-xs">Record Details <span class="fa fa-caret-square-o-right"></span> </a>';
+        edit_message_button = '<a data="'+tag['_id']+'"  class="edit_message_button btn btn-primary btn-xs bg-green" data-target="#edit_message">Edit Message<span class="fa fa-list"></span> </a>';
 
         var record = tag['_source']['Data']['record_details']
         var date_type = record['_source']['data_type']
@@ -434,6 +386,7 @@ function get_tag_message(tag , label , with_label = false){
                     <div class="btn-group">\
                         <a data="'+tag['_id']+'" class="tag_delete_button btn btn-danger btn-xs">Delete <span class="fa fa-remove"></span></a>\
                         '+record_details_button+'\
+                        '+edit_message_button+'\
                     </div>\
                 </div>\
               </div>\
@@ -453,11 +406,13 @@ function get_tag_table(tag){
     var machine                 = ""
     var important_fields        = ""
     var record_details_button   = ""
+    var edit_message_button     = ""
 
     // build the important fields cell if exists
     if(tag['_source']['Data'].hasOwnProperty("record_details")){
         record_details_button = '<a data="'+tag_id+'"  data-target="#tag_details" class="record_details_button btn btn-primary btn-xs"><span class="fa fa-caret-square-o-right"></span> </a>';
-
+        edit_message_button = '<a data="'+tag_id+'"   class="edit_message_button btn btn-primary btn-xs bg-green" data-target="#edit_message"><span class="fa fa-list"></span> </a>';
+    
         var record = tag['_source']['Data']['record_details']
         var date_type = record['_source']['data_type']
         var imp_rec = record_important_fields[date_type];
@@ -474,6 +429,7 @@ function get_tag_table(tag){
     var options = '<div class="btn-group-vertical">\
                         <a data="'+tag_id+'" class="tag_delete_button btn btn-danger btn-xs"><span class="fa fa-remove"></span></a>\
                         '+record_details_button+'\
+                        '+edit_message_button+'\
                     </div>'
 
     tr += '<td style="white-space:nowrap;" >'+timestamp+'</td>'
@@ -609,27 +565,6 @@ $("#show_as_timeline").on('click' , function(){
 })
 
 
-
-
-
-
-// on clicked to submet a tag message 
-$('#tag_add_form_submit').click(function(){
-    var date = $('#tag_add_form_datetime').val().replace(" " , "T");
-    var msg = $('#tag_add_form_message').val();
-
-    add_msg_tag(msg , date);
-
-    $('#tag_add_form_datetime').val('')
-    $('#tag_add_form_message').val('')
-})
-
-
-
-
-
-
-
 // if record details button clicked 
 $('.timeline').on( 'click' , 'a.record_details_button' , function(){
     var tag = get_tag_by_id( $(this).attr('data') )
@@ -647,10 +582,32 @@ $('.timeline').on( 'click' , 'a.record_details_button' , function(){
     $('#tag_details').modal('show')
 })
 
+// if edit message button clicked 
+$('.timeline').on( 'click' , 'a.edit_message_button' , function(){
+    var tag = get_tag_by_id( $(this).attr('data') )
+    var record = tag['_id']
+    
+    var html = '<br />\
+                  <textarea class="form-control" rows="2" placeholder="Message ..." id="tag_add_form_message"></textarea>\
+                  <br />\
+                  <button id="tag_add_form_submit" type="button" data-dismiss="modal" class="btn btn-success">\
+                  <li class="fa fa-plus-circle"></li> Submit</button>'
+
+    $('#message_details').find('.modal-body').html(html)
+
+    $('#message_details').modal('show')
+
+    // on clicked to submet a artifact message 
+    $('#tag_add_form_submit').click(function(){
+    var msg = $('#tag_add_form_message').val();
 
 
+    add_msg_tag(msg , record);
 
+    $('#tag_add_form_message').val('')
+})
 
+})
 
 
 
