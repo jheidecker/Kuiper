@@ -270,12 +270,12 @@ function del_tag(tag_id , record_id = null){
 
 
 // add tag with message
-function add_msg_tag(tag_msg , record ){
+function add_msg_tag(msg , tag_id, record_id ){
   $.ajax({
     type : 'POST',
     url : "/case/{{case_details['casename']}}/add_message_ajax",
     contentType: 'application/json;charset=UTF-8',
-    data : JSON.stringify({'data': {"message": tag_msg , 'doc_id': record } }),
+    data : JSON.stringify({'data': {"message": msg , 'tag_id': tag_id, 'record_id': record_id } }),
     async: false,
     timeout: 30000,
     success: function(result) {
@@ -286,10 +286,10 @@ function add_msg_tag(tag_msg , record ){
       else{
 
         if (view_type == 'table'){
-          $('#' + record + ' > td:nth-child(3)').text(tag_msg);
+          $('#' + tag_id + ' > td:nth-child(3)').text(msg);
         }
         else if (view_type == 'timeline'){
-          $('#' + record + ' > div > h3').text(tag_msg);
+          $('#' + tag_id + ' > div > h3').text(msg);
         }        
       
         toast_msg("The message has been added"  , type = 'info' , header = 'Information')
@@ -585,13 +585,22 @@ $('.timeline').on( 'click' , 'a.record_details_button' , function(){
 // if edit message button clicked 
 $('.timeline').on( 'click' , 'a.edit_message_button' , function(){
     var tag = get_tag_by_id( $(this).attr('data') )
-    var record = tag['_id']
-    
+    var tag_id = tag['_id']
+    var record_id = tag['_source']['Data']['record_id']
+
+    if (view_type == 'table'){
+       var setmsg = $('#' + tag_id + ' > td:nth-child(3)').text()
+    }
+    else if (view_type == 'timeline'){
+       var setmsg = $('#' + tag_id + ' > div > h3').text()
+    }
+
     var html = '<br />\
-                  <textarea class="form-control" rows="2" placeholder="Message ..." id="tag_add_form_message"></textarea>\
+                  <textarea class="form-control" rows="2" placeholder="Message ..." id="tag_add_form_message">'+setmsg+'</textarea>\
                   <br />\
                   <button id="tag_add_form_submit" type="button" data-dismiss="modal" class="btn btn-success">\
-                  <li class="fa fa-plus-circle"></li> Submit</button>'
+                  <li class="fa fa-plus-circle"></li> Submit</button>' 
+
 
     $('#message_details').find('.modal-body').html(html)
 
@@ -602,7 +611,7 @@ $('.timeline').on( 'click' , 'a.edit_message_button' , function(){
     var msg = $('#tag_add_form_message').val();
 
 
-    add_msg_tag(msg , record);
+    add_msg_tag(msg, tag_id, record_id);
 
     $('#tag_add_form_message').val('')
 })
