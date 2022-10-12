@@ -435,7 +435,7 @@ function get_tag_table(tag){
     tr += '<td style="white-space:nowrap;" >'+timestamp+'</td>'
     tr += '<td style="white-space:nowrap;" >'+machine+'</td>'
     tr += '<td>'+message+'</td>'
-    tr += '<td>'+important_fields+'</td>'
+    tr += '<td style="max-width: 500px;>'+important_fields+'</td>'
     tr += '<td>'+options+'</td>'
 
     tr += '</tr>'
@@ -508,7 +508,7 @@ function print_tag(){
         timeline.html(timeline_content)
     } else if(view_type == 'table'){
 
-        var timeline_content = '<div class="box"><div class="box-body no-padding">\
+        var timeline_content = '<div class="box table-responsive"><div class="box-body no-padding">\
               <table class="table table-striped" id="timeline_table_view">\
               <col width="1%" />\
               <col width="1%" />\
