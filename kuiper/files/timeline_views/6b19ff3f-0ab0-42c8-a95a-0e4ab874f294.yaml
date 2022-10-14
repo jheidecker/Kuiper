@@ -14,3 +14,4 @@
     Export_Version: "${_Export_Version}"
     Export_Date: "${_Export_Date}"
     Extra: "Data.Event.EventData.Data.#text"
+    Message: "${message}"

@@ -16,3 +16,4 @@
     Export_Date: "${_Export_Date}"
     User: "${Data.Event.EventData.AccountName}"
     FileName/Path/URL: "${Data.Event.EventData.ImagePath}"
+    Message: "${message}"

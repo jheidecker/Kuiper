@@ -16,3 +16,4 @@
     Extra: "Reason: ${Data.Event.EventData.Reason}"
     Src: "${machine}"
     Dst: "${Data.Event.EventData.ServerName}"
+    Message: "${message}"

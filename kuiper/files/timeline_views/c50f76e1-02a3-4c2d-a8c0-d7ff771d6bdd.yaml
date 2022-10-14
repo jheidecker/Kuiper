@@ -12,3 +12,4 @@
     Export_Version: "${_Export_Version}"
     Export_Date: "${_Export_Date}"
     Details/Procedure: "Execution of PowerShell command ${Data.command}"
+    Message: "${message}"

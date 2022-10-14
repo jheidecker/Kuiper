@@ -16,3 +16,5 @@
     Tag: "${tag_type}"
     Export_Version: "${_Export_Version}"
     Export_Date: "${_Export_Date}"
+
+    Message: "${message}"

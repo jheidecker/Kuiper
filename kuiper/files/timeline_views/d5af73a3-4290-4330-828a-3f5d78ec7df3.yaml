@@ -14,3 +14,4 @@
     Details/Procedure: "Access to ${Data.path}"
     Extra: "${Data.key_path}"
     FileName/Path/URL: "${Data.path}"
+    Message: "${message}"

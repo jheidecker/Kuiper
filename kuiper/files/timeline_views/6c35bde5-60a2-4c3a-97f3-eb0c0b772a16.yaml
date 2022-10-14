@@ -17,3 +17,4 @@
     Src: "${Data.Event.UserData.EventXML.Address}"
     Dst: "${Data.Event.System.Computer}"    
     User: "${Data.Event.UserData.EventXML.User}"
+    Message: "${message}"

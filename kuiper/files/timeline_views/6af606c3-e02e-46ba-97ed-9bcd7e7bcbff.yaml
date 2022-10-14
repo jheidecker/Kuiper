@@ -17,3 +17,4 @@
     Dst: "${Data.Event.EventData.Value}"
     Src: "${Data.Event.System.Computer}"
     User: "${Data.Event.System.Security.@UserID}"
+    Message: "${message}"

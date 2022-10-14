@@ -15,3 +15,4 @@
     Export_Version: "${_Export_Version}"
     Export_Date: "${_Export_Date}"
     User: "${Data.Event.System.Security.@UserID}"
+    Message: "${message}"

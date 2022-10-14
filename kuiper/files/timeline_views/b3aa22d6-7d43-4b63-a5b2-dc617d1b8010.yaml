@@ -16,3 +16,4 @@
     Export_Date: "${_Export_Date}"
     Dst: "${machine}"
     User: "${Data.Event.EventData.TargetUserName}"
+    Message: "${message}"

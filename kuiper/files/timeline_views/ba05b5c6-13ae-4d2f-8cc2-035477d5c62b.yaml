@@ -16,3 +16,4 @@
     Export_Date: "${_Export_Date}"
     Src: "${Data.Event.System.Computer}"
     User: "${Data.Event.System.Security.@UserID}"
+    Message: "${message}"

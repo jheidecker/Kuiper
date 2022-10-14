@@ -14,3 +14,4 @@
     Export_Version: "${_Export_Version}"
     Export_Date: "${_Export_Date}"
     FileName/Path/URL: "${Data.Event.EventData.ActionName}"
+    Message: "${message}"
